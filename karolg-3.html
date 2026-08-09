@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KAROLG — Sinf jurnali</title>
+<style>
+  :root{
+    --blue:#2563EB; --blue-dark:#1D4ED8; --green:#16A34A; --green-light:#DCFCE7;
+    --gray:#D1D5DB; --gray-light:#F3F4F6; --gray-dark:#374151; --red:#DC2626;
+    --yellow:#F59E0B; --bg:#F8FAFC; --card:#FFFFFF; --text:#1F2937; --muted:#6B7280;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--text);}
+  .app{min-height:100vh;display:flex;flex-direction:column;}
+  header{background:var(--blue);color:#fff;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;}
+  header .brand{display:flex;align-items:center;gap:8px;font-weight:800;font-size:16px;letter-spacing:.3px;}
+  header .who{font-size:12px;opacity:.9;display:flex;align-items:center;gap:8px;}
+  header button.logout{background:rgba(255,255,255,.15);border:none;color:#fff;padding:5px 10px;border-radius:8px;cursor:pointer;font-size:12px;}
+  header button.logout:hover{background:rgba(255,255,255,.25);}
+  .tabs{display:flex;gap:2px;background:var(--blue-dark);padding:0 10px;overflow-x:auto;}
+  .tab{padding:8px 12px;color:#fff;opacity:.7;cursor:pointer;font-size:13px;white-space:nowrap;border-bottom:3px solid transparent;}
+  .tab.active{opacity:1;border-bottom:3px solid #fff;font-weight:700;}
+  main{flex:1;padding:10px;max-width:1200px;margin:0 auto;width:100%;}
+  .card{background:var(--card);border-radius:12px;padding:12px;box-shadow:0 1px 3px rgba(0,0,0,.06);margin-bottom:12px;}
+  h2{margin:0 0 10px;font-size:16px;}
+  h3{margin:0 0 6px;font-size:14px;color:var(--gray-dark);}
+  .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+  input,select{padding:7px 9px;border:1px solid var(--gray);border-radius:8px;font-size:13px;background:#fff;}
+  button{cursor:pointer;font-size:13px;border:none;border-radius:8px;padding:7px 12px;font-weight:600;}
+  .btn-blue{background:var(--blue);color:#fff;}
+  .btn-blue:hover{background:var(--blue-dark);}
+  .btn-green{background:var(--green);color:#fff;}
+  .btn-gray{background:var(--gray-light);color:var(--text);}
+  .btn-red{background:#FEE2E2;color:var(--red);}
+  .btn-sm{padding:4px 8px;font-size:11px;}
+  table{border-collapse:collapse;width:100%;font-size:12px;}
+  th,td{padding:5px 7px;text-align:center;border-bottom:1px solid #EEF0F3;}
+  th{background:var(--gray-light);font-weight:700;color:var(--gray-dark);position:sticky;top:0;font-size:11px;}
+  td.name{text-align:left;font-weight:600;white-space:nowrap;}
+  .dot{width:22px;height:22px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;margin:3px;border:2px solid var(--gray);color:transparent;font-size:11px;font-weight:900;user-select:none;touch-action:manipulation;}
+  .dot.on{background:var(--green);border-color:var(--green);color:#fff;}
+  .dot.hw{border-radius:6px;}
+  .dot.hw.on{background:var(--blue);border-color:var(--blue);}
+  .dot.beh{border-radius:6px;}
+  .dot.beh.on{background:var(--yellow);border-color:var(--yellow);}
+  .readonly{cursor:default!important;}
+  .pill{padding:3px 9px;border-radius:999px;font-weight:700;font-size:12px;}
+  .pill.good{background:var(--green-light);color:#166534;}
+  .pill.mid{background:#FEF3C7;color:#92400E;}
+  .pill.bad{background:#FEE2E2;color:#991B1B;}
+  .zoom-controls{display:flex;gap:6px;align-items:center;margin-bottom:10px;}
+  .zoom-controls button{width:32px;height:32px;padding:0;font-size:16px;}
+  .zoom-wrap{overflow:auto;border:1px solid #EEF0F3;border-radius:10px;max-height:65vh;}
+  .zoom-inner{transform-origin:top left;}
+  .login-wrap{flex:1;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#2563EB,#1D4ED8);}
+  .login-card{background:#fff;padding:36px;border-radius:18px;width:340px;box-shadow:0 10px 40px rgba(0,0,0,.2);}
+  .login-card h1{margin:0 0 4px;font-size:22px;color:var(--blue);}
+  .login-card p{margin:0 0 20px;color:var(--muted);font-size:13px;}
+  .login-card input{width:100%;margin-bottom:10px;}
+  .login-card button{width:100%;margin-top:6px;}
+  .error{color:var(--red);font-size:13px;margin-top:8px;}
+  .stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;}
+  .stat-box{background:var(--gray-light);border-radius:12px;padding:14px;text-align:center;}
+  .stat-box .num{font-size:28px;font-weight:800;color:var(--blue);}
+  .stat-box .lbl{font-size:12px;color:var(--muted);margin-top:2px;}
+  .period-btns{display:flex;gap:6px;margin-bottom:14px;}
+  .period-btns button{background:var(--gray-light);}
+  .period-btns button.active{background:var(--blue);color:#fff;}
+  .empty{text-align:center;color:var(--muted);padding:30px;}
+  .day-tabs{display:flex;gap:4px;margin-bottom:12px;flex-wrap:wrap;}
+  .day-tabs button{background:var(--gray-light);}
+  .day-tabs button.active{background:var(--blue);color:#fff;}
+  .slot-card{border:1px solid #EEF0F3;border-radius:10px;padding:12px;margin-bottom:8px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
+  .badge{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;}
+  .list-item{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #EEF0F3;}
+  .list-item:last-child{border-bottom:none;}
+  .muted{color:var(--muted);font-size:12px;}
+  .rank-badge{width:28px;height:28px;border-radius:50%;background:var(--gray-light);display:inline-flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;}
+  .rank-badge.top1{background:#FEF3C7;color:#92400E;}
+  .rank-badge.top2{background:#E5E7EB;color:#374151;}
+  .rank-badge.top3{background:#FDE9DA;color:#9A3412;}
+  .self-row{background:#EFF6FF;}
+  .day-chip{display:inline-flex;align-items:center;justify-content:center;padding:6px 10px;border-radius:7px;background:var(--gray-light);color:var(--muted);font-size:12px;font-weight:700;cursor:pointer;border:1px solid var(--gray);touch-action:manipulation;}
+  .day-chip.active{background:var(--blue);color:#fff;border-color:var(--blue);}
+  .num-badge{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:var(--gray-light);color:var(--muted);font-size:11px;font-weight:700;flex-shrink:0;}
+  .chat-wrap{display:flex;flex-direction:column;height:60vh;}
+  .chat-msgs{flex:1;overflow-y:auto;padding:10px;background:var(--gray-light);border-radius:10px;display:flex;flex-direction:column;gap:8px;}
+  .msg{max-width:75%;padding:8px 12px;border-radius:14px;font-size:13px;line-height:1.4;}
+  .msg .t{font-size:10px;opacity:.7;margin-top:3px;}
+  .msg.mine{align-self:flex-end;background:var(--blue);color:#fff;border-bottom-right-radius:3px;}
+  .msg.theirs{align-self:flex-start;background:#fff;color:var(--text);border-bottom-left-radius:3px;box-shadow:0 1px 2px rgba(0,0,0,.08);}
+  .chat-input-row{display:flex;gap:8px;margin-top:10px;}
+  .chat-input-row input{flex:1;}
+  .chat-student-item{display:flex;justify-content:space-between;align-items:center;padding:10px 8px;border-bottom:1px solid #EEF0F3;cursor:pointer;}
+  .chat-student-item:hover{background:var(--gray-light);}
+  .unread-dot{width:9px;height:9px;border-radius:50%;background:var(--red);display:inline-block;margin-left:6px;}
+</style>
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
+</head>
+<body>
+<div id="root" class="app"></div>
+
+<script>
+// ===== FIREBASE SOZLAMALARI =====
+// Bu yerga Firebase konsolidan olingan o'z config'ingizni qo'ying.
+// Qo'llanma: FIREBASE_SOZLASH.md faylida.
+const firebaseConfig = {
+  apiKey: "SIZNING_API_KEY",
+  authDomain: "SIZNING_PROJECT.firebaseapp.com",
+  projectId: "SIZNING_PROJECT",
+  storageBucket: "SIZNING_PROJECT.appspot.com",
+  messagingSenderId: "SIZNING_SENDER_ID",
+  appId: "SIZNING_APP_ID"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+const auth = firebase.auth();
+
+const WEEKDAYS = ['Dushanba','Seshanba','Chorshanba','Payshanba','Juma','Shanba'];
+const COLORS = ['#2563EB','#16A34A','#F59E0B','#DC2626','#7C3AED','#0891B2','#DB2777','#65A30D'];
+let appData = null;
+let session = null; // {role, id}
+let currentTab = null;
+let zoomLevel = 1;
+let journalDate = todayStr();
+let scheduleWeekday = 1;
+let dashPeriod = 'overall';
+let confirmDeleteSubjectId = null;
+let selectedChatStudentId = null;
+let selectedScheduleId = null;
+
+function todayStr(){
+  const d=new Date();
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+}
+function dateForWeekday(wd){
+  const start = new Date(weekStart(journalDate||todayStr())+'T00:00:00');
+  start.setDate(start.getDate() + (wd-1));
+  return start.getFullYear()+'-'+String(start.getMonth()+1).padStart(2,'0')+'-'+String(start.getDate()).padStart(2,'0');
+}
+function uid(){ return Math.random().toString(36).slice(2,10)+Date.now().toString(36); }
+function weekdayOf(dateStr){ const d=new Date(dateStr+'T00:00:00'); return ((d.getDay()+6)%7)+1; }
+function weekStart(dateStr){
+  const d=new Date(dateStr+'T00:00:00');
+  const wd=((d.getDay()+6)%7);
+  d.setDate(d.getDate()-wd);
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+}
+function monthOf(dateStr){ return dateStr.slice(0,7); }
+
+const DOC_REF = () => db.collection('karolg').doc('data');
+
+function normalizeData(d){
+  if(!d.messages) d.messages = [];
+  if(!d.records) d.records = {};
+  if(!d.admins) d.admins = [];
+  if(!d.students) d.students = [];
+  if(!d.subjects) d.subjects = [];
+  if(!d.schedule) d.schedule = [];
+  return d;
+}
+
+async function loadData(){
+  const snap = await DOC_REF().get();
+  if(snap.exists){ return normalizeData(snap.data()); }
+  const def = {
+    admins:[
+      {id:uid(),name:'Jamshid',username:'Jamshid',password:'201201'},
+      {id:uid(),name:'Dilfuza',username:'Dilfuza',password:'197701'}
+    ],
+    students:[], subjects:[], schedule:[], records:{}, messages:[]
+  };
+  await DOC_REF().set(def);
+  return def;
+}
+async function saveData(data){
+  appData = data;
+  try{ await DOC_REF().set(data); }
+  catch(e){ console.error('Saqlashda xato', e); }
+}
+function loadSession(){
+  try{
+    const raw = localStorage.getItem('karolg-session');
+    if(raw) return JSON.parse(raw);
+  }catch(e){}
+  return null;
+}
+function saveSession(s){
+  session = s;
+  try{
+    if(s) localStorage.setItem('karolg-session', JSON.stringify(s));
+    else localStorage.removeItem('karolg-session');
+  }catch(e){}
+}
+
+function genUsername(fullName){
+  const parts = fullName.trim().toLowerCase().split(/\s+/);
+  let base = parts.length>1 ? (parts[0]+'.'+parts[parts.length-1]) : parts[0];
+  base = base.replace(/[^a-z0-9.]/g,'');
+  let uname = base, n=1;
+  while(appData.students.some(s=>s.username===uname)){ n++; uname = base+n; }
+  return uname;
+}
+
+// ---------- RECORD HELPERS ----------
+function recKey(date, studentId, scheduleId){ return date+'__'+studentId+'__'+scheduleId; }
+function getRecord(date, studentId, scheduleId){ return appData.records[recKey(date,studentId,scheduleId)]; }
+function ensureRecord(date, studentId, scheduleId, tasksCount){
+  const k = recKey(date,studentId,scheduleId);
+  if(!appData.records[k]){
+    appData.records[k] = { tasksCount, tasksCompleted: Array(tasksCount).fill(false), homework:false, behaviorGood:false };
+  }
+  return appData.records[k];
+}
+function recordGrade(rec){
+  const ratio = rec.tasksCount>0 ? (rec.tasksCompleted.filter(Boolean).length/rec.tasksCount) : 0;
+  return 2 + ratio + (rec.homework?1:0) + (rec.behaviorGood?1:0);
+}
+function studentStats(studentId, filterFn){
+  let ball=0, mumkin=0, gradeSum=0, gradeCount=0;
+  for(const k in appData.records){
+    const [date,sId,subId] = k.split('__');
+    if(sId!==studentId) continue;
+    if(filterFn && !filterFn(date)) continue;
+    const rec = appData.records[k];
+    const completed = rec.tasksCompleted.filter(Boolean).length;
+    ball += completed + (rec.homework?1:0) + (rec.behaviorGood?1:0);
+    mumkin += rec.tasksCount + 2;
+    gradeSum += recordGrade(rec); gradeCount++;
+  }
+  const foiz = mumkin>0 ? Math.round((ball/mumkin)*1000)/10 : 0;
+  const baho = gradeCount>0 ? Math.round((gradeSum/gradeCount)*10)/10 : 0;
+  return {foiz, baho, ball, mumkin};
+}
+function rankingList(){
+  return appData.students.filter(s=>s.active!==false).map(s=>{
+    const st = studentStats(s.id);
+    return {...s, ...st};
+  }).sort((a,b)=>b.foiz-a.foiz);
+}
+
+// ---------- RENDER ----------
+function el(html){ const d=document.createElement('div'); d.innerHTML=html; return d.firstElementChild; }
+function root(){ return document.getElementById('root'); }
+
+async function init(){
+  try{ await auth.signInAnonymously(); }
+  catch(e){ console.error('Auth xatosi', e); root().innerHTML = `<div class="empty">Ulanishda xato: Firebase sozlamalarini tekshiring.</div>`; return; }
+  appData = await loadData();
+  session = loadSession();
+  render();
+  DOC_REF().onSnapshot(snap=>{
+    if(!snap.exists) return;
+    appData = normalizeData(snap.data());
+    render();
+  }, err=> console.error('Realtime xato', err));
+}
+
+function render(){
+  if(!session){ renderLogin(); return; }
+  if(session.role==='admin') renderAdmin();
+  else renderStudent();
+}
+
+// ---------- LOGIN ----------
+function renderLogin(err){
+  root().innerHTML = '';
+  root().className = 'app';
+  const wrap = el(`
+    <div class="login-wrap">
+      <div class="login-card">
+        <h1>📘 KAROLG</h1>
+        <p>Sinf jurnaliga kirish</p>
+        <input id="lg-user" placeholder="Login" autocomplete="username"/>
+        <input id="lg-pass" placeholder="Parol" type="password" autocomplete="current-password"/>
+        <button class="btn-blue" id="lg-btn" style="width:100%">Kirish</button>
+        ${err? `<div class="error">${err}</div>`:''}
+      </div>
+    </div>
+  `);
+  root().appendChild(wrap);
+  document.getElementById('lg-btn').onclick = doLogin;
+  document.getElementById('lg-pass').addEventListener('keydown', e=>{ if(e.key==='Enter') doLogin(); });
+}
+async function doLogin(){
+  const u = document.getElementById('lg-user').value.trim();
+  const p = document.getElementById('lg-pass').value;
+  const admin = appData.admins.find(a=>a.username===u && a.password===p);
+  if(admin){ await saveSession({role:'admin', id:admin.id}); currentTab='jurnal'; render(); return; }
+  const stu = appData.students.find(s=>s.username===u && s.password===p && s.active!==false);
+  if(stu){ await saveSession({role:'student', id:stu.id}); currentTab='jurnal'; render(); return; }
+  renderLogin('Login yoki parol noto\'g\'ri');
+}
+async function logout(){ await saveSession(null); currentTab=null; render(); }
+
+// ---------- ADMIN SHELL ----------
+function renderAdmin(){
+  const admin = appData.admins.find(a=>a.id===session.id);
+  if(!currentTab) currentTab='jurnal';
+  root().innerHTML = '';
+  const header = el(`
+    <header>
+      <div class="brand">📘 KAROLG</div>
+      <div class="who">${admin? admin.name:'Admin'} (admin) <button class="logout">Chiqish</button></div>
+    </header>
+  `);
+  header.querySelector('.logout').onclick = logout;
+  const tabs = el(`
+    <div class="tabs">
+      ${tabBtn('jurnal','Jurnal')}${tabBtn('oquvchilar','O\'quvchilar')}${tabBtn('fanlar','Fanlar')}
+      ${tabBtn('jadval','Jadval')}${tabBtn('reyting','Reyting')}${tabBtn('savollar','Savollar')}
+    </div>
+  `);
+  tabs.querySelectorAll('.tab').forEach(t=> t.onclick = ()=>{ currentTab=t.dataset.tab; render(); });
+  const main = document.createElement('main');
+  root().appendChild(header); root().appendChild(tabs); root().appendChild(main);
+
+  if(currentTab==='jurnal') renderJurnal(main, true);
+  else if(currentTab==='oquvchilar') renderStudentsTab(main);
+  else if(currentTab==='fanlar') renderSubjectsTab(main);
+  else if(currentTab==='jadval') renderScheduleTab(main);
+  else if(currentTab==='reyting') renderRankingTab(main, true);
+  else if(currentTab==='savollar') renderSavollarAdmin(main);
+}
+function tabBtn(id,label){ return `<div class="tab ${currentTab===id?'active':''}" data-tab="${id}">${label}</div>`; }
+
+// ---------- STUDENT SHELL ----------
+function renderStudent(){
+  const stu = appData.students.find(s=>s.id===session.id);
+  if(!stu){ logout(); return; }
+  if(!currentTab || currentTab==='oquvchilar' || currentTab==='fanlar' || currentTab==='jadval' || currentTab==='reyting') currentTab='jurnal';
+  root().innerHTML='';
+  const header = el(`
+    <header>
+      <div class="brand">📘 KAROLG</div>
+      <div class="who">${stu.fullName} (o'quvchi) <button class="logout">Chiqish</button></div>
+    </header>
+  `);
+  header.querySelector('.logout').onclick = logout;
+  const tabs = el(`<div class="tabs">${tabBtn('jurnal','Jurnal')}${tabBtn('dashboard','Dashboard')}${tabBtn('savollar','Savollar')}</div>`);
+  tabs.querySelectorAll('.tab').forEach(t=> t.onclick = ()=>{ currentTab=t.dataset.tab; render(); });
+  const main = document.createElement('main');
+  root().appendChild(header); root().appendChild(tabs); root().appendChild(main);
+  if(currentTab==='jurnal') renderJurnal(main, false);
+  else if(currentTab==='savollar') renderSavollarStudent(main, stu);
+  else renderDashboard(main, stu);
+}
+
+// ---------- JURNAL ----------
+function renderJurnal(main, editable){
+  const wd = weekdayOf(journalDate);
+  const daySchedule = appData.schedule.filter(s=>s.weekday===wd).sort((a,b)=>a.lessonOrder-b.lessonOrder);
+  const students = appData.students.filter(s=>s.active!==false);
+
+  if(!selectedScheduleId || !daySchedule.some(s=>s.id===selectedScheduleId)){
+    selectedScheduleId = daySchedule.length? daySchedule[0].id : null;
+  }
+
+  const card = el(`<div class="card">
+    <div class="row" style="justify-content:space-between;margin-bottom:6px;">
+      <h2 style="margin:0">Kunlik jurnal</h2>
+      <input type="date" id="j-date" value="${journalDate}" />
+    </div>
+    <div class="day-tabs" id="j-day-tabs" style="margin-bottom:8px;flex-wrap:nowrap;overflow-x:auto;">
+      ${WEEKDAYS.map((w,i)=>`<button data-wd="${i+1}" class="${wd===i+1?'active':''}" style="padding:5px 8px;font-size:11px;flex-shrink:0;">${w.slice(0,3)}</button>`).join('')}
+    </div>
+    <div class="day-tabs" id="j-subj-tabs" style="margin-bottom:10px;"></div>
+    <div class="zoom-controls">
+      <button id="z-out">−</button><span id="z-lbl" class="muted">${Math.round(zoomLevel*100)}%</span><button id="z-in">+</button>
+    </div>
+    <div class="zoom-wrap"><div class="zoom-inner" id="j-inner"></div></div>
+  </div>`);
+  main.appendChild(card);
+  const refresh = ()=>{
+    const oldWrap = main.querySelector('.zoom-wrap');
+    const st = oldWrap ? oldWrap.scrollTop : 0;
+    const sl = oldWrap ? oldWrap.scrollLeft : 0;
+    const pageY = window.scrollY;
+    main.innerHTML='';
+    renderJurnal(main, editable);
+    const newWrap = main.querySelector('.zoom-wrap');
+    if(newWrap){ newWrap.scrollTop = st; newWrap.scrollLeft = sl; }
+    window.scrollTo(0, pageY);
+  };
+  card.querySelector('#j-date').onchange = e=>{ journalDate = e.target.value; selectedScheduleId=null; refresh(); };
+  card.querySelectorAll('#j-day-tabs button').forEach(b=>{
+    b.onclick = ()=>{ journalDate = dateForWeekday(parseInt(b.dataset.wd)); selectedScheduleId=null; refresh(); };
+  });
+  card.querySelector('#z-in').onclick = ()=>{ zoomLevel=Math.min(2.5, zoomLevel+0.1); refresh(); };
+  card.querySelector('#z-out').onclick = ()=>{ zoomLevel=Math.max(0.6, zoomLevel-0.1); refresh(); };
+
+  const inner = card.querySelector('#j-inner');
+  inner.style.transform = `scale(${zoomLevel})`;
+
+  const subjTabsBox = card.querySelector('#j-subj-tabs');
+  if(daySchedule.length===0){
+    subjTabsBox.innerHTML = '';
+    inner.innerHTML = `<div class="empty">Bu kunga hali fan/jadval belgilanmagan.${editable?' "Jadval" bo\'limidan qo\'shing.':''}</div>`;
+    return;
+  }
+  subjTabsBox.innerHTML = daySchedule.map(sch=>{
+    const subj = appData.subjects.find(s=>s.id===sch.subjectId);
+    return `<button data-sch="${sch.id}" class="${selectedScheduleId===sch.id?'active':''}">${subj?subj.name:'?'} <span class="muted">(${sch.tasksCount})</span></button>`;
+  }).join('');
+  subjTabsBox.querySelectorAll('button').forEach(b=>{
+    b.onclick = ()=>{ selectedScheduleId = b.dataset.sch; refresh(); };
+  });
+
+  if(students.length===0){
+    inner.innerHTML = `<div class="empty">Hali o'quvchi qo'shilmagan.</div>`;
+    return;
+  }
+
+  const sch = daySchedule.find(s=>s.id===selectedScheduleId);
+  const subj = appData.subjects.find(s=>s.id===sch.subjectId);
+
+  let thead = `<tr><th>№</th><th style="text-align:left">Ism Familiya</th><th>${subj?subj.name:'?'}<br><span class="muted">(${sch.tasksCount} ta + uy)</span></th><th>Bugungi faollik</th><th>Jami foiz</th><th>Baho</th></tr>`;
+
+  let rows = '';
+  students.forEach((stu,idx)=>{
+    const isSelf = session.role==='student' && stu.id===session.id;
+    const rec = ensureRecord(journalDate, stu.id, sch.id, sch.tasksCount);
+    let dots='';
+    rec.tasksCompleted.forEach((done,i)=>{
+      dots += `<span class="dot ${done?'on':''} ${editable?'':'readonly'}" data-act="task" data-stu="${stu.id}" data-sch="${sch.id}" data-idx="${i}" data-tc="${sch.tasksCount}">${done?'✓':''}</span>`;
+    });
+    dots += `<span class="dot hw ${rec.homework?'on':''} ${editable?'':'readonly'}" title="Uy vazifasi" data-act="hw" data-stu="${stu.id}" data-sch="${sch.id}" data-tc="${sch.tasksCount}">${rec.homework?'🏠':''}</span>`;
+    dots += `<span class="dot beh ${rec.behaviorGood?'on':''} ${editable?'':'readonly'}" title="Xulq" data-act="beh" data-stu="${stu.id}" data-sch="${sch.id}" data-tc="${sch.tasksCount}">${rec.behaviorGood?'☺':''}</span>`;
+    const g = recordGrade(rec).toFixed(1);
+    const today = studentStats(stu.id, d=>d===journalDate);
+    const st = studentStats(stu.id);
+    rows += `<tr class="${isSelf?'self-row':''}"><td>${idx+1}</td><td class="name">${stu.fullName}</td>
+      <td>${dots}<div style="margin-top:3px;font-weight:800;color:var(--blue);font-size:12px;">${g}</div></td>
+      <td>${pill(today.foiz)}</td><td>${pill(st.foiz)}</td><td><b>${st.baho||'-'}</b></td></tr>`;
+  });
+
+  inner.innerHTML = `<table><thead>${thead}</thead><tbody>${rows}</tbody></table>`;
+
+  if(editable){
+    inner.querySelectorAll('.dot[data-act]').forEach(dotEl=>{
+      dotEl.onclick = ()=>{
+        const {act, stu, sch, idx, tc} = dotEl.dataset;
+        const rec = ensureRecord(journalDate, stu, sch, parseInt(tc));
+        if(act==='task') rec.tasksCompleted[idx] = !rec.tasksCompleted[idx];
+        if(act==='hw') rec.homework = !rec.homework;
+        if(act==='beh') rec.behaviorGood = !rec.behaviorGood;
+        refresh();
+        saveData(appData);
+      };
+    });
+  }
+}
+function pill(foiz){
+  const cls = foiz>=70?'good':(foiz>=40?'mid':'bad');
+  return `<span class="pill ${cls}">${foiz}%</span>`;
+}
+
+// ---------- O'QUVCHILAR ----------
+function renderStudentsTab(main){
+  const card = el(`<div class="card">
+    <h2>O'quvchi qo'shish</h2>
+    <div class="row">
+      <input id="s-name" placeholder="Ism Familiya" style="flex:1;min-width:200px;"/>
+      <button class="btn-green" id="s-add">Qo'shish</button>
+    </div>
+    <div id="s-msg" class="muted" style="margin-top:8px;"></div>
+  </div>`);
+  main.appendChild(card);
+  card.querySelector('#s-add').onclick = async ()=>{
+    const name = card.querySelector('#s-name').value.trim();
+    if(!name) return;
+    const username = genUsername(name);
+    appData.students.push({id:uid(), fullName:name, username, password:'1234', active:true});
+    await saveData(appData);
+    card.querySelector('#s-name').value='';
+    card.querySelector('#s-msg').innerHTML = `<b>${name}</b> qo'shildi. Login: <b>${username}</b>, Boshlang'ich parol: <b>1234</b>`;
+    render();
+  };
+
+  const list = el(`<div class="card"><h2>O'quvchilar ro'yxati (${appData.students.length})</h2><div id="s-list"></div></div>`);
+  main.appendChild(list);
+  const listBox = list.querySelector('#s-list');
+  if(appData.students.length===0){ listBox.innerHTML = `<div class="empty">Hali o'quvchi yo'q.</div>`; }
+  appData.students.forEach((s,idx)=>{
+    const row = el(`<div class="list-item">
+      <div class="row"><span class="num-badge">${idx+1}</span><div><b>${s.fullName}</b> <span class="muted">(${s.username})</span> ${s.active===false?'<span class="pill bad">faolsiz</span>':''}</div></div>
+      <div class="row">
+        <button class="btn-gray btn-sm" data-a="pass">Parolni 1234ga qaytarish</button>
+        <button class="btn-${s.active===false?'green':'red'} btn-sm" data-a="toggle">${s.active===false?'Faollashtirish':'Faolsizlantirish'}</button>
+      </div>
+    </div>`);
+    row.querySelector('[data-a=toggle]').onclick = ()=>{ s.active = s.active===false ? true : false; render(); saveData(appData); };
+    row.querySelector('[data-a=pass]').onclick = ()=>{
+      s.password='1234';
+      saveData(appData);
+      const span = document.createElement('span');
+      span.className='muted'; span.style.marginLeft='8px'; span.textContent='✓ 1234ga qaytarildi';
+      row.querySelector('.row').appendChild(span);
+      setTimeout(()=>span.remove(), 2500);
+    };
+    listBox.appendChild(row);
+  });
+}
+
+// ---------- FANLAR ----------
+function nextFreeSlot(wd){
+  for(let o=1;o<=6;o++){
+    if(!appData.schedule.some(s=>s.weekday===wd && s.lessonOrder===o)) return o;
+  }
+  return null;
+}
+
+function renderSubjectsTab(main){
+  const card = el(`<div class="card">
+    <h2>Fan qo'shish</h2>
+    <div class="row">
+      <input id="f-name" placeholder="Fan nomi (masalan Matematika)" style="flex:1;min-width:160px;"/>
+      <select id="f-color">${COLORS.map(c=>`<option value="${c}">${c}</option>`).join('')}</select>
+    </div>
+    <div class="row" style="margin-top:8px;">
+      <span class="muted">Qaysi kun (bitta tanlang, xohlasangiz keyin ro'yxatdan yana kun qo'shasiz):</span>
+    </div>
+    <div class="row" id="f-day-picker" style="margin-top:4px;">
+      ${WEEKDAYS.map((w,i)=>`<span class="day-chip" data-wd="${i+1}">${w.slice(0,3)}</span>`).join('')}
+      <span class="day-chip" data-wd="0" style="opacity:.7;">Hech biri</span>
+    </div>
+    <div class="row" style="margin-top:8px;">
+      <span class="muted">Shu kuniga vazifalar soni:</span>
+      <input type="number" id="f-tasks" min="1" max="20" value="4" style="width:60px"/>
+      <button class="btn-green" id="f-add">Qo'shish</button>
+    </div>
+    <div id="f-msg" class="muted" style="margin-top:6px;"></div>
+  </div>`);
+  main.appendChild(card);
+
+  let selectedDay = null;
+  const dayChips = card.querySelectorAll('#f-day-picker .day-chip');
+  dayChips.forEach(chip=>{
+    chip.onclick = ()=>{
+      const wd = parseInt(chip.dataset.wd);
+      selectedDay = (wd===0) ? null : wd;
+      dayChips.forEach(c=>c.classList.remove('active'));
+      if(selectedDay) chip.classList.add('active');
+    };
+  });
+
+  card.querySelector('#f-add').onclick = ()=>{
+    const name = card.querySelector('#f-name').value.trim();
+    if(!name) return;
+    const subjId = uid();
+    appData.subjects.push({id:subjId, name, color: card.querySelector('#f-color').value});
+    const tasks = parseInt(card.querySelector('#f-tasks').value)||4;
+    let msg = "Fan qo'shildi.";
+    if(selectedDay){
+      const slot = nextFreeSlot(selectedDay);
+      if(slot){
+        appData.schedule.push({id:uid(), weekday:selectedDay, lessonOrder:slot, subjectId:subjId, tasksCount:tasks});
+        msg = `Fan qo'shildi va ${WEEKDAYS[selectedDay-1]} kuniga joylashtirildi.`;
+      } else {
+        msg = `Fan qo'shildi, lekin ${WEEKDAYS[selectedDay-1]} kunida 6 ta dars soati to'lib qolgan.`;
+      }
+    }
+    card.querySelector('#f-msg').textContent = msg;
+    render(); saveData(appData);
+  };
+
+  const list = el(`<div class="card"><h2>Fanlar (${appData.subjects.length})</h2>
+    <p class="muted">Har bir fan qatoridagi kun belgilarini bosib, uni o'sha kunga qo'shish yoki olib tashlash mumkin.</p>
+    <div id="f-list"></div></div>`);
+  main.appendChild(list);
+  const box = list.querySelector('#f-list');
+  if(appData.subjects.length===0) box.innerHTML = `<div class="empty">Hali fan yo'q.</div>`;
+  appData.subjects.forEach((f,idx)=>{
+    const assignedDays = appData.schedule.filter(s=>s.subjectId===f.id).map(s=>s.weekday);
+    const pending = confirmDeleteSubjectId === f.id;
+    const row = el(`<div class="list-item" style="flex-direction:column;align-items:stretch;gap:6px;">
+      <div class="row" style="justify-content:space-between;">
+        <div class="row"><span class="num-badge">${idx+1}</span><span class="badge" style="background:${f.color}"></span><b>${f.name}</b></div>
+        ${pending ? `
+          <div class="row">
+            <span class="muted">O'chirilsinmi?</span>
+            <button class="btn-red btn-sm" data-a="confirm">Ha</button>
+            <button class="btn-gray btn-sm" data-a="cancel">Bekor</button>
+          </div>
+        ` : `<button class="btn-red btn-sm" data-a="del">O'chirish</button>`}
+      </div>
+      <div class="row">
+        ${WEEKDAYS.map((w,i)=>{
+          const wd=i+1; const active = assignedDays.includes(wd);
+          return `<span class="day-chip ${active?'active':''}" data-wd="${wd}" data-subj="${f.id}">${w.slice(0,3)}</span>`;
+        }).join('')}
+      </div>
+    </div>`);
+    if(pending){
+      row.querySelector('[data-a=confirm]').onclick = ()=>{
+        appData.subjects = appData.subjects.filter(x=>x.id!==f.id);
+        appData.schedule = appData.schedule.filter(x=>x.subjectId!==f.id);
+        confirmDeleteSubjectId = null;
+        render(); saveData(appData);
+      };
+      row.querySelector('[data-a=cancel]').onclick = ()=>{ confirmDeleteSubjectId=null; render(); };
+    } else {
+      row.querySelector('[data-a=del]').onclick = ()=>{ confirmDeleteSubjectId = f.id; render(); };
+    }
+    row.querySelectorAll('.day-chip').forEach(chip=>{
+      chip.onclick = ()=>{
+        const wd = parseInt(chip.dataset.wd); const subjId = chip.dataset.subj;
+        const existing = appData.schedule.find(s=>s.weekday===wd && s.subjectId===subjId);
+        if(existing){
+          appData.schedule = appData.schedule.filter(s=>s!==existing);
+        } else {
+          const slot = nextFreeSlot(wd);
+          if(slot) appData.schedule.push({id:uid(), weekday:wd, lessonOrder:slot, subjectId:subjId, tasksCount:4});
+        }
+        render(); saveData(appData);
+      };
+    });
+    box.appendChild(row);
+  });
+}
+
+// ---------- JADVAL ----------
+function renderScheduleTab(main){
+  const card = el(`<div class="card">
+    <h2>Haftalik jadval</h2>
+    <p class="muted">Bir marta tuzsangiz, har hafta shu tartibda avtomatik takrorlanadi. Kuniga maksimal 6 ta dars.</p>
+    <div class="day-tabs" id="d-tabs">${WEEKDAYS.map((w,i)=>`<button data-d="${i+1}" class="${scheduleWeekday===i+1?'active':''}">${w}</button>`).join('')}</div>
+    <div id="d-slots"></div>
+  </div>`);
+  main.appendChild(card);
+  card.querySelectorAll('#d-tabs button').forEach(b=> b.onclick = ()=>{ scheduleWeekday = parseInt(b.dataset.d); renderAdmin(); });
+
+  const slotsBox = card.querySelector('#d-slots');
+  if(appData.subjects.length===0){
+    slotsBox.innerHTML = `<div class="empty">Avval "Fanlar" bo'limidan fan qo'shing.</div>`;
+    return;
+  }
+  for(let order=1; order<=6; order++){
+    const entry = appData.schedule.find(s=>s.weekday===scheduleWeekday && s.lessonOrder===order);
+    const slot = el(`<div class="slot-card">
+      <b>${order}-soat</b>
+      <select data-o="${order}" class="sel-subj">
+        <option value="">— fan tanlang —</option>
+        ${appData.subjects.map(sub=>`<option value="${sub.id}" ${entry&&entry.subjectId===sub.id?'selected':''}>${sub.name}</option>`).join('')}
+      </select>
+      <input type="number" min="1" max="20" value="${entry?entry.tasksCount:4}" class="tc-input" data-o="${order}" style="width:70px" title="Vazifalar soni"/>
+      <span class="muted">ta vazifa</span>
+      ${entry?`<button class="btn-red btn-sm" data-clear="${order}">Tozalash</button>`:''}
+    </div>`);
+    slot.querySelector('.sel-subj').onchange = async (e)=>{
+      const subjectId = e.target.value;
+      const tc = parseInt(slot.querySelector('.tc-input').value)||4;
+      upsertSchedule(order, subjectId, tc);
+      await saveData(appData); renderAdmin();
+    };
+    slot.querySelector('.tc-input').onchange = async (e)=>{
+      const sel = slot.querySelector('.sel-subj').value;
+      if(!sel) return;
+      upsertSchedule(order, sel, parseInt(e.target.value)||1);
+      await saveData(appData); renderAdmin();
+    };
+    const clearBtn = slot.querySelector('[data-clear]');
+    if(clearBtn) clearBtn.onclick = async ()=>{
+      appData.schedule = appData.schedule.filter(s=>!(s.weekday===scheduleWeekday && s.lessonOrder===order));
+      await saveData(appData); renderAdmin();
+    };
+    slotsBox.appendChild(slot);
+  }
+}
+function upsertSchedule(order, subjectId, tasksCount){
+  if(!subjectId){
+    appData.schedule = appData.schedule.filter(s=>!(s.weekday===scheduleWeekday && s.lessonOrder===order));
+    return;
+  }
+  let entry = appData.schedule.find(s=>s.weekday===scheduleWeekday && s.lessonOrder===order);
+  if(entry){ entry.subjectId=subjectId; entry.tasksCount=tasksCount; }
+  else appData.schedule.push({id:uid(), weekday:scheduleWeekday, lessonOrder:order, subjectId, tasksCount});
+}
+
+// ---------- REYTING ----------
+function renderRankingTab(main, isAdmin){
+  const list = rankingList();
+  const card = el(`<div class="card"><h2>Reyting</h2><div id="r-list"></div></div>`);
+  main.appendChild(card);
+  const box = card.querySelector('#r-list');
+  if(list.length===0){ box.innerHTML = `<div class="empty">Hali ma'lumot yo'q.</div>`; return; }
+  list.forEach((s,i)=>{
+    const cls = i===0?'top1':(i===1?'top2':(i===2?'top3':''));
+    const isSelf = !isAdmin && session.role==='student' && s.id===session.id;
+    const row = el(`<div class="list-item ${isSelf?'self-row':''}">
+      <div class="row"><span class="rank-badge ${cls}">${i+1}</span><b>${s.fullName}</b></div>
+      <div class="row">${pill(s.foiz)}<b>${s.baho||'-'}</b></div>
+    </div>`);
+    box.appendChild(row);
+  });
+}
+
+// ---------- DASHBOARD (student) ----------
+function renderDashboard(main, stu){
+  const overall = studentStats(stu.id);
+  const week = studentStats(stu.id, d=>d>=weekStart(todayStr()));
+  const month = studentStats(stu.id, d=>monthOf(d)===monthOf(todayStr()));
+  const list = rankingList();
+  const rankIdx = list.findIndex(s=>s.id===stu.id);
+
+  const card = el(`<div class="card">
+    <div class="period-btns">
+      <button data-p="overall" class="${dashPeriod==='overall'?'active':''}">Umumiy</button>
+      <button data-p="week" class="${dashPeriod==='week'?'active':''}">Bu hafta</button>
+      <button data-p="month" class="${dashPeriod==='month'?'active':''}">Bu oy</button>
+    </div>
+    <div id="d-stats"></div>
+  </div>`);
+  main.appendChild(card);
+  card.querySelectorAll('[data-p]').forEach(b=> b.onclick = ()=>{ dashPeriod=b.dataset.p; renderStudent(); });
+  const statsBox = card.querySelector('#d-stats');
+  const cur = dashPeriod==='week'?week:(dashPeriod==='month'?month:overall);
+  statsBox.innerHTML = `
+    <div class="stat-grid">
+      <div class="stat-box"><div class="num">${cur.foiz}%</div><div class="lbl">Foiz</div></div>
+      <div class="stat-box"><div class="num">${cur.baho||'-'}</div><div class="lbl">O'rtacha baho</div></div>
+      <div class="stat-box"><div class="num">${rankIdx>=0?(rankIdx+1):'-'}/${list.length}</div><div class="lbl">Sinfdagi o'rin</div></div>
+    </div>`;
+
+  const passCard = el(`<div class="card">
+    <h2>Parolni o'zgartirish</h2>
+    <div class="row">
+      <input id="p-old" type="password" placeholder="Eski parol"/>
+      <input id="p-new" type="password" placeholder="Yangi parol"/>
+      <button class="btn-blue" id="p-btn">O'zgartirish</button>
+    </div>
+    <div id="p-msg" class="muted" style="margin-top:8px;"></div>
+  </div>`);
+  main.appendChild(passCard);
+  passCard.querySelector('#p-btn').onclick = async ()=>{
+    const oldP = passCard.querySelector('#p-old').value;
+    const newP = passCard.querySelector('#p-new').value;
+    if(stu.password!==oldP){ passCard.querySelector('#p-msg').innerHTML='<span style="color:#DC2626">Eski parol noto\'g\'ri</span>'; return; }
+    if(!newP){ return; }
+    stu.password = newP; await saveData(appData);
+    passCard.querySelector('#p-msg').innerHTML = '<span style="color:#16A34A">Parol yangilandi</span>';
+    passCard.querySelector('#p-old').value=''; passCard.querySelector('#p-new').value='';
+  };
+
+  const rankCard = document.createElement('div');
+  main.appendChild(rankCard);
+  renderRankingTab(rankCard, false);
+}
+
+// ---------- SAVOLLAR (chat) ----------
+function sendMessage(studentId, sender, senderName, text){
+  if(!text.trim()) return;
+  appData.messages.push({id:uid(), studentId, sender, senderName, text:text.trim(), time:new Date().toISOString()});
+  render();
+  saveData(appData);
+}
+function fmtTime(iso){
+  const d = new Date(iso);
+  return d.toLocaleDateString('uz-UZ',{day:'2-digit',month:'2-digit'})+' '+d.toLocaleTimeString('uz-UZ',{hour:'2-digit',minute:'2-digit'});
+}
+function threadFor(studentId){
+  return appData.messages.filter(m=>m.studentId===studentId).sort((a,b)=>new Date(a.time)-new Date(b.time));
+}
+function isUnreadForAdmin(studentId){
+  const t = threadFor(studentId);
+  return t.length>0 && t[t.length-1].sender==='student';
+}
+
+function renderSavollarStudent(main, stu){
+  const card = el(`<div class="card">
+    <h2>Savollar</h2>
+    <p class="muted">Bu yerda adminlarga savol yozishingiz mumkin.</p>
+    <div class="chat-wrap">
+      <div class="chat-msgs" id="c-msgs"></div>
+      <div class="chat-input-row">
+        <input id="c-input" placeholder="Savolingizni yozing..." />
+        <button class="btn-blue" id="c-send">Yuborish</button>
+      </div>
+    </div>
+  </div>`);
+  main.appendChild(card);
+  const msgsBox = card.querySelector('#c-msgs');
+  const thread = threadFor(stu.id);
+  if(thread.length===0){ msgsBox.innerHTML = `<div class="empty">Hali savol yo'q. Pastdan yozing.</div>`; }
+  thread.forEach(m=>{
+    const mine = m.sender==='student';
+    msgsBox.appendChild(el(`<div class="msg ${mine?'mine':'theirs'}">
+      ${mine?'':`<b style="font-size:11px;display:block;">${m.senderName}</b>`}
+      ${m.text}<div class="t">${fmtTime(m.time)}</div>
+    </div>`));
+  });
+  msgsBox.scrollTop = msgsBox.scrollHeight;
+  const send = ()=>{
+    const val = card.querySelector('#c-input').value;
+    sendMessage(stu.id, 'student', stu.fullName, val);
+  };
+  card.querySelector('#c-send').onclick = send;
+  card.querySelector('#c-input').addEventListener('keydown', e=>{ if(e.key==='Enter') send(); });
+}
+
+function renderSavollarAdmin(main){
+  const admin = appData.admins.find(a=>a.id===session.id);
+  const students = appData.students.filter(s=>s.active!==false);
+
+  if(!selectedChatStudentId){
+    const card = el(`<div class="card"><h2>Savollar</h2>
+      <p class="muted">O'quvchi bilan suhbatni ochish uchun ismini bosing.</p>
+      <div id="c-list"></div>
+    </div>`);
+    main.appendChild(card);
+    const box = card.querySelector('#c-list');
+    if(students.length===0){ box.innerHTML = `<div class="empty">Hali o'quvchi yo'q.</div>`; return; }
+    const sorted = [...students].sort((a,b)=>{
+      const ta = threadFor(a.id), tb = threadFor(b.id);
+      const la = ta.length? new Date(ta[ta.length-1].time).getTime() : 0;
+      const lb = tb.length? new Date(tb[tb.length-1].time).getTime() : 0;
+      return lb-la;
+    });
+    sorted.forEach(s=>{
+      const t = threadFor(s.id);
+      const last = t.length? t[t.length-1] : null;
+      const item = el(`<div class="chat-student-item">
+        <div>
+          <b>${s.fullName}</b> ${isUnreadForAdmin(s.id)?'<span class="unread-dot"></span>':''}
+          <div class="muted" style="max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${last? (last.sender==='student'?'':'Siz: ')+last.text : 'Hali xabar yo\'q'}</div>
+        </div>
+        <span class="muted">${last? fmtTime(last.time):''}</span>
+      </div>`);
+      item.onclick = ()=>{ selectedChatStudentId = s.id; render(); };
+      box.appendChild(item);
+    });
+    return;
+  }
+
+  const stu = appData.students.find(s=>s.id===selectedChatStudentId);
+  const card = el(`<div class="card">
+    <div class="row" style="justify-content:space-between;">
+      <h2 style="margin:0">${stu? stu.fullName : 'O\'quvchi'}</h2>
+      <button class="btn-gray btn-sm" id="c-back">← Ro'yxatga</button>
+    </div>
+    <div class="chat-wrap" style="margin-top:10px;">
+      <div class="chat-msgs" id="c-msgs"></div>
+      <div class="chat-input-row">
+        <input id="c-input" placeholder="Javob yozing..." />
+        <button class="btn-blue" id="c-send">Yuborish</button>
+      </div>
+    </div>
+  </div>`);
+  main.appendChild(card);
+  card.querySelector('#c-back').onclick = ()=>{ selectedChatStudentId=null; render(); };
+  const msgsBox = card.querySelector('#c-msgs');
+  const thread = threadFor(selectedChatStudentId);
+  if(thread.length===0){ msgsBox.innerHTML = `<div class="empty">Hali xabar yo'q.</div>`; }
+  thread.forEach(m=>{
+    const mine = m.sender==='admin';
+    msgsBox.appendChild(el(`<div class="msg ${mine?'mine':'theirs'}">
+      ${mine?'':''}${m.text}<div class="t">${fmtTime(m.time)}</div>
+    </div>`));
+  });
+  msgsBox.scrollTop = msgsBox.scrollHeight;
+  const send = ()=>{
+    const val = card.querySelector('#c-input').value;
+    sendMessage(selectedChatStudentId, 'admin', admin?admin.name:'Admin', val);
+  };
+  card.querySelector('#c-send').onclick = send;
+  card.querySelector('#c-input').addEventListener('keydown', e=>{ if(e.key==='Enter') send(); });
+}
+
+init();
+
+</script>
+</body>
+</html>
